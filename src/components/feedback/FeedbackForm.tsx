@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { feedbackSchema, type FeedbackFormData } from '@/types'
@@ -29,12 +29,16 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
 
+  // Filter to show only "Branches" type
+  const branchesOnly = branches.filter(b => b.type === 'Branches')
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
     watch,
+    setValue,
   } = useForm<FeedbackFormData>({
     resolver: zodResolver(feedbackSchema),
     defaultValues: {
@@ -42,6 +46,13 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
       rating: 0,
     },
   })
+
+  // Update form when initialBranchId changes (from map selection)
+  useEffect(() => {
+    if (initialBranchId) {
+      setValue('branchId', initialBranchId)
+    }
+  }, [initialBranchId, setValue])
 
   const selectedRating = watch('rating')
 
@@ -109,9 +120,9 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="">Choose a branch...</option>
-          {branches.map((branch) => (
+          {branchesOnly.map((branch) => (
             <option key={branch.id} value={branch.id}>
-              {branch.name} - {branch.type}
+              {branch.name}
             </option>
           ))}
         </select>
