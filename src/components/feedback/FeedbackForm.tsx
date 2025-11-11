@@ -172,7 +172,9 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
             <label key={rating} className="cursor-pointer transition-transform hover:scale-110 active:scale-95">
               <input
                 type="radio"
-                {...register('rating', { valueAsNumber: true })}
+                {...register('rating', {
+                  setValueAs: (value) => parseInt(value, 10),
+                })}
                 value={rating}
                 className="sr-only"
               />
