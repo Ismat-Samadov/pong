@@ -12,7 +12,7 @@ interface Branch {
   longitude: number
   feedbackCount: number
   averageRating: number
-  services: string
+  services: string | null
 }
 
 interface Stats {
