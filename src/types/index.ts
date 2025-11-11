@@ -13,7 +13,11 @@ export const feedbackSchema = z.object({
   customerPhone: z.string().optional(),
 })
 
-export type FeedbackFormData = z.infer<typeof feedbackSchema>
+// Input type for the form (what React Hook Form receives)
+export type FeedbackFormData = z.input<typeof feedbackSchema>
+
+// Output type after validation (what the schema produces)
+export type FeedbackData = z.output<typeof feedbackSchema>
 
 // Login form validation schema
 export const loginSchema = z.object({
