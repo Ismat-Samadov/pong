@@ -1,0 +1,15 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/admin/analytics/page": "/admin/analytics",
+  "/admin/branches/page": "/admin/branches",
+  "/admin/dashboard/page": "/admin/dashboard",
+  "/admin/map/page": "/admin/map",
+  "/admin/page": "/admin",
+  "/api/auth/[...nextauth]/route": "/api/auth/[...nextauth]",
+  "/api/branches/route": "/api/branches",
+  "/api/feedback/route": "/api/feedback",
+  "/auth/login/page": "/auth/login",
+  "/feedback/page": "/feedback",
+  "/page": "/"
+}
