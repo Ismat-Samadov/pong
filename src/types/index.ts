@@ -3,18 +3,8 @@ import { z } from 'zod'
 // Feedback form validation schema
 export const feedbackSchema = z.object({
   branchId: z.string().min(1, 'Please select a branch'),
-  rating: z.preprocess(
-    (val) => {
-      // Convert string to number if needed
-      if (typeof val === 'string') {
-        const num = parseInt(val, 10)
-        return isNaN(num) ? val : num
-      }
-      return val
-    },
-    z.number({ required_error: 'Please select a rating' })
-      .min(1, 'Please select at least 1 star')
-      .max(5, 'Rating cannot exceed 5 stars')
+  rating: z.string().transform((val) => parseInt(val, 10)).pipe(
+    z.number().min(1, 'Please select at least 1 star').max(5, 'Rating cannot exceed 5 stars')
   ),
   category: z.string().min(1, 'Please select a category'),
   comment: z.string().optional(),
