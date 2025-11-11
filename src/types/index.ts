@@ -3,11 +3,14 @@ import { z } from 'zod'
 // Feedback form validation schema
 export const feedbackSchema = z.object({
   branchId: z.string().min(1, 'Please select a branch'),
-  rating: z.number().min(1).max(5),
+  rating: z.number({
+    required_error: 'Please select a rating',
+    invalid_type_error: 'Please select a rating',
+  }).min(1, 'Please select at least 1 star').max(5, 'Rating cannot exceed 5 stars'),
   category: z.string().min(1, 'Please select a category'),
   comment: z.string().optional(),
   customerName: z.string().optional(),
-  customerEmail: z.string().email().optional().or(z.literal('')),
+  customerEmail: z.string().email('Please enter a valid email').optional().or(z.literal('')),
   customerPhone: z.string().optional(),
 })
 

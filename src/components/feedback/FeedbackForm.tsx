@@ -43,7 +43,6 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
     resolver: zodResolver(feedbackSchema),
     defaultValues: {
       branchId: initialBranchId,
-      rating: 0,
     },
   })
 
@@ -53,6 +52,22 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
       setValue('branchId', initialBranchId)
     }
   }, [initialBranchId, setValue])
+
+  // Scroll to first error when validation fails
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      const firstErrorField = Object.keys(errors)[0]
+      const errorElement = document.querySelector(`[name="${firstErrorField}"]`) ||
+                          document.querySelector(`[data-error="${firstErrorField}"]`)
+
+      if (errorElement) {
+        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      } else if (firstErrorField === 'branchId') {
+        // If branch is the error, scroll to top of page
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+    }
+  }, [errors])
 
   const selectedRating = watch('rating')
 
@@ -119,19 +134,36 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
       {/* Hidden Branch ID - set by map selection */}
       <input type="hidden" {...register('branchId')} />
       {errors.branchId && (
-        <div className="bg-red-50 border-2 border-red-300 text-red-700 px-6 py-4 rounded-xl">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">⚠️</span>
+        <div
+          data-error="branchId"
+          className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-5 rounded-xl shadow-lg animate-pulse"
+        >
+          <div className="flex items-start gap-4">
+            <span className="text-3xl">⚠️</span>
             <div>
-              <p className="font-semibold">Branch Required</p>
-              <p className="text-sm mt-1">Please select a branch from the map or list on the left</p>
+              <p className="font-bold text-lg">Branch Required</p>
+              <p className="text-sm mt-1 text-red-50">
+                Please scroll up and select a branch from the map or list above
+              </p>
+              <button
+                type="button"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="mt-3 px-4 py-2 bg-white text-red-600 rounded-lg font-semibold text-sm hover:bg-red-50 transition-colors"
+              >
+                ↑ Select Branch Now
+              </button>
             </div>
           </div>
         </div>
       )}
 
       {/* Rating */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border-2 border-blue-100">
+      <div
+        data-error="rating"
+        className={`bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border-2 transition-all ${
+          errors.rating ? 'border-red-400 bg-red-50' : 'border-blue-100'
+        }`}
+      >
         <label className="block text-base font-semibold mb-3 text-gray-800">
           How was your experience? <span className="text-red-500">*</span>
         </label>
@@ -164,12 +196,16 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
           ))}
         </div>
         {errors.rating && (
-          <p className="text-red-600 text-sm mt-3 font-medium text-center">⚠️ {errors.rating.message}</p>
+          <div className="mt-4 p-3 bg-red-100 border-2 border-red-300 rounded-lg">
+            <p className="text-red-700 text-sm font-semibold text-center flex items-center justify-center gap-2">
+              <span className="text-xl">⚠️</span> {errors.rating.message}
+            </p>
+          </div>
         )}
       </div>
 
       {/* Category */}
-      <div>
+      <div data-error="category">
         <label className="block text-base font-semibold mb-3 text-gray-800">
           What would you like to tell us about? <span className="text-red-500">*</span>
         </label>
@@ -201,7 +237,11 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
           ))}
         </div>
         {errors.category && (
-          <p className="text-red-600 text-sm mt-2 font-medium">⚠️ {errors.category.message}</p>
+          <div className="mt-3 p-3 bg-red-100 border-2 border-red-300 rounded-lg">
+            <p className="text-red-700 text-sm font-semibold flex items-center gap-2">
+              <span className="text-xl">⚠️</span> {errors.category.message}
+            </p>
+          </div>
         )}
       </div>
 
@@ -239,10 +279,18 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
               type="email"
               {...register('customerEmail')}
               placeholder="Your Email"
-              className="w-full px-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-base"
+              className={`w-full px-4 py-3 sm:py-4 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all text-base ${
+                errors.customerEmail
+                  ? 'border-red-400 bg-red-50 focus:border-red-500'
+                  : 'border-gray-200 focus:border-blue-500'
+              }`}
             />
             {errors.customerEmail && (
-              <p className="text-red-600 text-sm mt-2 font-medium">⚠️ {errors.customerEmail.message}</p>
+              <div className="mt-2 p-2 bg-red-100 border-2 border-red-300 rounded-lg">
+                <p className="text-red-700 text-sm font-semibold flex items-center gap-2">
+                  <span className="text-lg">⚠️</span> {errors.customerEmail.message}
+                </p>
+              </div>
             )}
           </div>
           <div>
