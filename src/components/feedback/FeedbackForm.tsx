@@ -16,12 +16,12 @@ interface FeedbackFormProps {
 }
 
 const categories = [
-  'Service Quality',
-  'Cleanliness',
-  'Speed of Service',
-  'Staff Behavior',
-  'Facilities',
-  'Other',
+  { value: 'Service Quality', icon: '👥', color: 'blue' },
+  { value: 'Cleanliness', icon: '✨', color: 'green' },
+  { value: 'Speed of Service', icon: '⚡', color: 'yellow' },
+  { value: 'Staff Behavior', icon: '😊', color: 'purple' },
+  { value: 'Facilities', icon: '🏢', color: 'indigo' },
+  { value: 'Other', icon: '💬', color: 'gray' },
 ]
 
 export default function FeedbackForm({ branches, initialBranchId }: FeedbackFormProps) {
@@ -105,136 +105,199 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {success && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-          Thank you for your feedback!
+        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-xl shadow-lg animate-pulse">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">✓</span>
+            <div>
+              <p className="font-bold text-lg">Thank you!</p>
+              <p className="text-sm text-green-50">Your feedback has been submitted successfully</p>
+            </div>
+          </div>
         </div>
       )}
 
       {/* Hidden Branch ID - set by map selection */}
       <input type="hidden" {...register('branchId')} />
       {errors.branchId && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          Please select a branch from the map or list above
+        <div className="bg-red-50 border-2 border-red-300 text-red-700 px-6 py-4 rounded-xl">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">⚠️</span>
+            <div>
+              <p className="font-semibold">Branch Required</p>
+              <p className="text-sm mt-1">Please select a branch from the map or list on the left</p>
+            </div>
+          </div>
         </div>
       )}
 
       {/* Rating */}
-      <div>
-        <label className="block text-sm font-medium mb-2">
-          Rating <span className="text-red-500">*</span>
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border-2 border-blue-100">
+        <label className="block text-base font-semibold mb-3 text-gray-800">
+          How was your experience? <span className="text-red-500">*</span>
         </label>
-        <div className="flex gap-2">
+        <div className="flex justify-center gap-2 sm:gap-4">
           {[1, 2, 3, 4, 5].map((rating) => (
-            <label key={rating} className="cursor-pointer">
+            <label key={rating} className="cursor-pointer transition-transform hover:scale-110 active:scale-95">
               <input
                 type="radio"
                 {...register('rating', { valueAsNumber: true })}
                 value={rating}
                 className="sr-only"
               />
-              <span
-                className={`text-4xl ${
-                  selectedRating >= rating ? 'text-yellow-500' : 'text-gray-300'
-                }`}
-              >
-                ★
-              </span>
+              <div className="flex flex-col items-center gap-2">
+                <span
+                  className={`text-5xl sm:text-6xl transition-all ${
+                    selectedRating >= rating
+                      ? 'text-yellow-400 drop-shadow-lg scale-110'
+                      : 'text-gray-300 hover:text-gray-400'
+                  }`}
+                >
+                  ★
+                </span>
+                {selectedRating === rating && (
+                  <span className="text-xs font-medium text-blue-600">
+                    {rating === 1 ? 'Poor' : rating === 2 ? 'Fair' : rating === 3 ? 'Good' : rating === 4 ? 'Very Good' : 'Excellent'}
+                  </span>
+                )}
+              </div>
             </label>
           ))}
         </div>
         {errors.rating && (
-          <p className="text-red-500 text-sm mt-1">{errors.rating.message}</p>
+          <p className="text-red-600 text-sm mt-3 font-medium text-center">⚠️ {errors.rating.message}</p>
         )}
       </div>
 
       {/* Category */}
       <div>
-        <label className="block text-sm font-medium mb-2">
-          Category <span className="text-red-500">*</span>
+        <label className="block text-base font-semibold mb-3 text-gray-800">
+          What would you like to tell us about? <span className="text-red-500">*</span>
         </label>
-        <select
-          {...register('category')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="">Select a category...</option>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
+            <label
+              key={category.value}
+              className={`relative cursor-pointer group`}
+            >
+              <input
+                type="radio"
+                {...register('category')}
+                value={category.value}
+                className="sr-only peer"
+              />
+              <div className={`
+                flex flex-col items-center justify-center p-4 rounded-xl border-2
+                transition-all duration-200
+                peer-checked:border-${category.color}-500 peer-checked:bg-${category.color}-50
+                peer-checked:shadow-lg peer-checked:scale-105
+                border-gray-200 bg-white hover:border-${category.color}-300 hover:shadow-md
+              `}>
+                <span className="text-3xl mb-2">{category.icon}</span>
+                <span className="text-xs sm:text-sm font-medium text-gray-700 text-center leading-tight">
+                  {category.value}
+                </span>
+              </div>
+            </label>
           ))}
-        </select>
+        </div>
         {errors.category && (
-          <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>
+          <p className="text-red-600 text-sm mt-2 font-medium">⚠️ {errors.category.message}</p>
         )}
       </div>
 
       {/* Comment */}
       <div>
-        <label className="block text-sm font-medium mb-2">
-          Comments (Optional)
+        <label className="block text-base font-semibold mb-3 text-gray-800">
+          Tell us more <span className="text-gray-400 text-sm font-normal">(Optional)</span>
         </label>
         <textarea
           {...register('comment')}
-          rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Tell us more about your experience..."
+          rows={5}
+          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none text-base"
+          placeholder="Share your experience with us... We'd love to hear the details!"
         />
+        <p className="text-xs text-gray-500 mt-2">Your feedback helps us improve our services</p>
       </div>
 
       {/* Contact Information */}
-      <div className="border-t pt-4">
-        <h3 className="font-medium mb-4">Contact Information (Optional)</h3>
-        <div className="space-y-3">
-          <input
-            type="text"
-            {...register('customerName')}
-            placeholder="Your Name"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <input
-            type="email"
-            {...register('customerEmail')}
-            placeholder="Your Email"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          {errors.customerEmail && (
-            <p className="text-red-500 text-sm">{errors.customerEmail.message}</p>
-          )}
-          <input
-            type="tel"
-            {...register('customerPhone')}
-            placeholder="Your Phone"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
+      <div className="border-t-2 border-gray-100 pt-6">
+        <h3 className="text-base font-semibold mb-4 text-gray-800 flex items-center gap-2">
+          <span>📧</span> Contact Information
+          <span className="text-gray-400 text-sm font-normal">(Optional)</span>
+        </h3>
+        <div className="space-y-4">
+          <div>
+            <input
+              type="text"
+              {...register('customerName')}
+              placeholder="Your Name"
+              className="w-full px-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-base"
+            />
+          </div>
+          <div>
+            <input
+              type="email"
+              {...register('customerEmail')}
+              placeholder="Your Email"
+              className="w-full px-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-base"
+            />
+            {errors.customerEmail && (
+              <p className="text-red-600 text-sm mt-2 font-medium">⚠️ {errors.customerEmail.message}</p>
+            )}
+          </div>
+          <div>
+            <input
+              type="tel"
+              {...register('customerPhone')}
+              placeholder="Your Phone Number"
+              className="w-full px-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-base"
+            />
+          </div>
         </div>
       </div>
 
       {/* File Upload */}
       <div>
-        <label className="block text-sm font-medium mb-2">
-          Attachments (Optional, max 5 files)
+        <label className="block text-base font-semibold mb-3 text-gray-800 flex items-center gap-2">
+          <span>📎</span> Add Photos or Documents
+          <span className="text-gray-400 text-sm font-normal">(Optional, max 5 files)</span>
         </label>
-        <input
-          type="file"
-          multiple
-          accept="image/*,.pdf"
-          onChange={handleFileChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-        />
+        <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors cursor-pointer bg-gray-50">
+          <label className="cursor-pointer">
+            <input
+              type="file"
+              multiple
+              accept="image/*,.pdf"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-4xl">📸</span>
+              <p className="text-sm font-medium text-gray-700">Tap to upload files</p>
+              <p className="text-xs text-gray-500">Images or PDF documents</p>
+            </div>
+          </label>
+        </div>
         {files.length > 0 && (
-          <div className="mt-2 space-y-2">
+          <div className="mt-4 space-y-2">
             {files.map((file, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between bg-gray-50 p-2 rounded"
+                className="flex items-center justify-between bg-white border-2 border-gray-200 p-3 rounded-xl"
               >
-                <span className="text-sm truncate">{file.name}</span>
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <span className="text-xl">📄</span>
+                  <span className="text-sm truncate font-medium text-gray-700">{file.name}</span>
+                  <span className="text-xs text-gray-500 whitespace-nowrap">
+                    {(file.size / 1024).toFixed(0)} KB
+                  </span>
+                </div>
                 <button
                   type="button"
                   onClick={() => removeFile(index)}
-                  className="text-red-500 hover:text-red-700 ml-2"
+                  className="ml-2 text-red-500 hover:text-red-700 font-medium text-sm px-3 py-1 hover:bg-red-50 rounded-lg transition-colors"
                 >
-                  Remove
+                  ✕
                 </button>
               </div>
             ))}
@@ -246,10 +309,26 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
       <button
         type="submit"
         disabled={submitting}
-        className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition disabled:bg-blue-300 font-medium text-lg"
+        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 sm:py-5 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-95"
       >
-        {submitting ? 'Submitting...' : 'Submit Feedback'}
+        {submitting ? (
+          <span className="flex items-center justify-center gap-2">
+            <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+            </svg>
+            Submitting...
+          </span>
+        ) : (
+          <span className="flex items-center justify-center gap-2">
+            <span>✓</span> Submit Feedback
+          </span>
+        )}
       </button>
+
+      <p className="text-center text-xs text-gray-500">
+        🔒 Your information is secure and will only be used to improve our services
+      </p>
     </form>
   )
 }

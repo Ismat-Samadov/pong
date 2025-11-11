@@ -101,57 +101,68 @@ export default function BranchSelector({ branches, onBranchSelect, selectedBranc
   return (
     <div className="space-y-4">
       {/* View Toggle */}
-      <div className="flex gap-2">
+      <div className="flex gap-3 bg-gray-100 p-1 rounded-xl">
         <button
           onClick={() => setSelectedView('map')}
-          className={`flex-1 px-4 py-2 rounded-lg transition ${
+          className={`flex-1 px-4 py-3 rounded-lg transition-all font-medium text-sm sm:text-base ${
             selectedView === 'map'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ? 'bg-white text-blue-600 shadow-md'
+              : 'text-gray-600 hover:text-gray-900'
           }`}
         >
-          Map View
+          <span className="mr-2">🗺️</span>
+          Map
         </button>
         <button
           onClick={() => setSelectedView('list')}
-          className={`flex-1 px-4 py-2 rounded-lg transition ${
+          className={`flex-1 px-4 py-3 rounded-lg transition-all font-medium text-sm sm:text-base ${
             selectedView === 'list'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ? 'bg-white text-blue-600 shadow-md'
+              : 'text-gray-600 hover:text-gray-900'
           }`}
         >
-          List View
+          <span className="mr-2">📋</span>
+          List
         </button>
       </div>
 
       {/* Search */}
-      <input
-        type="text"
-        placeholder="Search branches..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      />
+      <div className="relative">
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl">🔍</span>
+        <input
+          type="text"
+          placeholder="Search branches..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-12 pr-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-base"
+        />
+      </div>
 
       {/* Nearest Branch Suggestion */}
       {nearestBranch && !selectedBranchId && (
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800 font-medium mb-2">
-            Nearest Branch: {nearestBranch.name}
-          </p>
-          <p className="text-xs text-blue-600 mb-3">{nearestBranch.address}</p>
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4 shadow-md">
+          <div className="flex items-start gap-3 mb-3">
+            <span className="text-2xl">📍</span>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-blue-900 mb-1">
+                Nearest Branch
+              </p>
+              <p className="text-base font-semibold text-gray-800">{nearestBranch.name}</p>
+              <p className="text-sm text-gray-600 mt-1">{nearestBranch.address}</p>
+            </div>
+          </div>
           <button
             onClick={() => onBranchSelect(nearestBranch.id)}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+            className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all font-semibold shadow-md transform hover:scale-[1.02] active:scale-95"
           >
-            Select This Branch
+            ✓ Select This Branch
           </button>
         </div>
       )}
 
       {/* Map or List View */}
       {selectedView === 'map' ? (
-        <div className="h-96 rounded-lg overflow-hidden border border-gray-200">
+        <div className="h-[400px] sm:h-[500px] rounded-xl overflow-hidden border-2 border-gray-200 shadow-lg">
           <MapContainer
             center={[mapCenter.lat, mapCenter.lng]}
             zoom={13}
@@ -166,7 +177,12 @@ export default function BranchSelector({ branches, onBranchSelect, selectedBranc
             {/* User location marker */}
             {userLocation && (
               <Marker position={[userLocation.lat, userLocation.lng]}>
-                <Popup>Your Location</Popup>
+                <Popup>
+                  <div className="text-center p-1">
+                    <span className="text-2xl">📍</span>
+                    <p className="font-semibold">Your Location</p>
+                  </div>
+                </Popup>
               </Marker>
             )}
 
@@ -177,15 +193,17 @@ export default function BranchSelector({ branches, onBranchSelect, selectedBranc
                 position={[branch.latitude, branch.longitude]}
               >
                 <Popup>
-                  <div className="p-2">
-                    <h3 className="font-semibold text-gray-900">{branch.name}</h3>
+                  <div className="p-2 min-w-[200px]">
+                    <h3 className="font-bold text-gray-900 mb-2">{branch.name}</h3>
                     <p className="text-sm text-gray-600 mb-2">{branch.address}</p>
-                    <p className="text-xs text-gray-500 mb-2">Type: {branch.type}</p>
+                    <p className="text-xs text-gray-500 mb-3 bg-gray-100 px-2 py-1 rounded inline-block">
+                      {branch.type}
+                    </p>
                     <button
                       onClick={() => onBranchSelect(branch.id)}
-                      className="w-full px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                      className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold shadow-md"
                     >
-                      Select
+                      ✓ Select Branch
                     </button>
                   </div>
                 </Popup>
@@ -194,23 +212,42 @@ export default function BranchSelector({ branches, onBranchSelect, selectedBranc
           </MapContainer>
         </div>
       ) : (
-        <div className="max-h-96 overflow-y-auto space-y-2">
-          {filteredBranches.map((branch) => (
-            <div
-              key={branch.id}
-              className="p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition cursor-pointer"
-              onClick={() => onBranchSelect(branch.id)}
-            >
-              <h3 className="font-semibold text-gray-900">{branch.name}</h3>
-              <p className="text-sm text-gray-600">{branch.address}</p>
-              <p className="text-xs text-gray-500 mt-1">Type: {branch.type}</p>
-              {userLocation && (
-                <p className="text-xs text-blue-600 mt-1">
-                  Distance: {getDistance(userLocation, { lat: branch.latitude, lng: branch.longitude }).toFixed(2)} km
-                </p>
-              )}
+        <div className="max-h-[400px] sm:max-h-[500px] overflow-y-auto space-y-3 pr-1">
+          {filteredBranches.length === 0 ? (
+            <div className="text-center py-12 bg-gray-50 rounded-xl">
+              <span className="text-5xl mb-3 block">🔍</span>
+              <p className="text-gray-600 font-medium">No branches found</p>
+              <p className="text-sm text-gray-500 mt-1">Try a different search term</p>
             </div>
-          ))}
+          ) : (
+            filteredBranches.map((branch) => (
+              <div
+                key={branch.id}
+                className="p-4 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-lg transition-all cursor-pointer bg-white transform hover:scale-[1.01] active:scale-[0.99]"
+                onClick={() => onBranchSelect(branch.id)}
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">🏦</span>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-900 mb-1">{branch.name}</h3>
+                    <p className="text-sm text-gray-600 mb-2">{branch.address}</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-lg font-medium">
+                        {branch.type}
+                      </span>
+                      {userLocation && (
+                        <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-lg font-medium flex items-center gap-1">
+                          <span>📍</span>
+                          {getDistance(userLocation, { lat: branch.latitude, lng: branch.longitude }).toFixed(2)} km
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-blue-500 text-xl">→</span>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       )}
     </div>
