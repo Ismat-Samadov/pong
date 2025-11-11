@@ -29,6 +29,26 @@ interface BankAPIResponse {
   }
 }
 
+// Decode HTML entities
+function decodeHTMLEntities(text: string): string {
+  const entities: Record<string, string> = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#39;': "'",
+    '&laquo;': '«',
+    '&raquo;': '»',
+    '&ccedil;': 'ç',
+    '&Ccedil;': 'Ç',
+    '&nbsp;': ' ',
+    '&ndash;': '–',
+    '&mdash;': '—',
+  }
+
+  return text.replace(/&[a-zA-Z0-9#]+;/g, (entity) => entities[entity] || entity)
+}
+
 export async function POST() {
   try {
     // Fetch data from Bank of Baku API
@@ -103,8 +123,10 @@ export async function POST() {
           continue
         }
 
-        // Clean title by removing HTML tags
-        const cleanTitle = (location.title || '').replace(/<[^>]*>/g, '').trim()
+        // Clean title by removing HTML tags and decoding entities
+        const cleanTitle = decodeHTMLEntities(
+          (location.title || '').replace(/<[^>]*>/g, '').trim()
+        )
 
         // Determine type based on title
         let type = 'Branch'
@@ -231,8 +253,10 @@ export async function GET() {
           return null
         }
 
-        // Clean title by removing HTML tags
-        const cleanTitle = (location.title || '').replace(/<[^>]*>/g, '').trim() || 'Unnamed Location'
+        // Clean title by removing HTML tags and decoding entities
+        const cleanTitle = decodeHTMLEntities(
+          (location.title || '').replace(/<[^>]*>/g, '').trim()
+        ) || 'Unnamed Location'
 
         let type = 'Branch'
         const titleLower = cleanTitle.toLowerCase()
