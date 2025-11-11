@@ -1,6 +1,5 @@
 import { db } from '@/lib/db'
-import BranchCard from '@/components/admin/BranchCard'
-import Link from 'next/link'
+import BranchesClient from '@/components/admin/BranchesClient'
 
 export default async function BranchesPage() {
   const branches = await db.branch.findMany({
@@ -32,33 +31,30 @@ export default async function BranchesPage() {
     averageRating: ratingsMap.get(branch.id) || 0,
   }))
 
-  // Group by type
-  const branchesByType = branchesWithStats.reduce((acc, branch) => {
+  // Calculate stats
+  const totalBranches = branchesWithStats.length
+  const totalFeedback = branchesWithStats.reduce((sum, b) => sum + b.feedbackCount, 0)
+  const avgRating = branchesWithStats.reduce((sum, b) => sum + (b.averageRating || 0), 0) / totalBranches || 0
+
+  // Group by type with counts
+  const typeStats = branchesWithStats.reduce((acc, branch) => {
     if (!acc[branch.type]) {
-      acc[branch.type] = []
+      acc[branch.type] = { count: 0, feedbacks: 0 }
     }
-    acc[branch.type].push(branch)
+    acc[branch.type].count++
+    acc[branch.type].feedbacks += branch.feedbackCount
     return acc
-  }, {} as Record<string, typeof branchesWithStats>)
+  }, {} as Record<string, { count: number; feedbacks: number }>)
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Branches</h1>
-      </div>
-
-      {Object.entries(branchesByType).map(([type, branchList]) => (
-        <div key={type} className="space-y-4">
-          <h2 className="text-2xl font-semibold border-b pb-2">
-            {type} ({branchList.length})
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {branchList.map((branch) => (
-              <BranchCard key={branch.id} branch={branch} />
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
+    <BranchesClient
+      branches={branchesWithStats}
+      stats={{
+        totalBranches,
+        totalFeedback,
+        avgRating,
+        typeStats,
+      }}
+    />
   )
 }
