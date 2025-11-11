@@ -48,9 +48,17 @@ export default function FeedbackLinksPage() {
     try {
       const res = await fetch('/api/feedback-links')
       const data = await res.json()
-      setLinks(data)
+
+      // Check if response is OK and data is an array
+      if (res.ok && Array.isArray(data)) {
+        setLinks(data)
+      } else {
+        console.error('Invalid response:', data)
+        setLinks([])
+      }
     } catch (error) {
       console.error('Error fetching links:', error)
+      setLinks([])
     } finally {
       setLoading(false)
     }
@@ -60,9 +68,17 @@ export default function FeedbackLinksPage() {
     try {
       const res = await fetch('/api/branches')
       const data = await res.json()
-      setBranches(data)
+
+      // Check if response is OK and data is an array
+      if (res.ok && Array.isArray(data)) {
+        setBranches(data)
+      } else {
+        console.error('Invalid response:', data)
+        setBranches([])
+      }
     } catch (error) {
       console.error('Error fetching branches:', error)
+      setBranches([])
     }
   }
 

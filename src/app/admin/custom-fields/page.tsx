@@ -50,9 +50,17 @@ export default function CustomFieldsPage() {
     try {
       const res = await fetch('/api/custom-fields')
       const data = await res.json()
-      setFields(data)
+
+      // Check if response is OK and data is an array
+      if (res.ok && Array.isArray(data)) {
+        setFields(data)
+      } else {
+        console.error('Invalid response:', data)
+        setFields([])
+      }
     } catch (error) {
       console.error('Error fetching fields:', error)
+      setFields([])
     } finally {
       setLoading(false)
     }
