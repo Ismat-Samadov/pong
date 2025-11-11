@@ -140,12 +140,21 @@ export async function POST() {
         )
 
         // Determine type based on title (standardized plural forms)
-        let type = 'Branches'
         const titleLower = cleanTitle.toLowerCase()
+        let type = 'Branches'
+
         if (titleLower.includes('atm')) {
           type = 'ATMs'
         } else if (titleLower.includes('terminal')) {
           type = 'Payment Terminals'
+        } else if (
+          // Check if it's actually a branch/filial/office
+          !titleLower.includes('branch') &&
+          !titleLower.includes('filial') &&
+          !titleLower.includes('office')
+        ) {
+          // It's a service point (mall, travel agency, etc)
+          type = 'Service Points'
         }
 
         // Upsert branch using external ID as unique identifier
@@ -277,12 +286,21 @@ export async function GET() {
         ) || 'Unnamed Location'
 
         // Determine type based on title (standardized plural forms)
-        let type = 'Branches'
         const titleLower = cleanTitle.toLowerCase()
+        let type = 'Branches'
+
         if (titleLower.includes('atm')) {
           type = 'ATMs'
         } else if (titleLower.includes('terminal')) {
           type = 'Payment Terminals'
+        } else if (
+          // Check if it's actually a branch/filial/office
+          !titleLower.includes('branch') &&
+          !titleLower.includes('filial') &&
+          !titleLower.includes('office')
+        ) {
+          // It's a service point (mall, travel agency, etc)
+          type = 'Service Points'
         }
 
         return {
