@@ -27,7 +27,7 @@ yarn-error.log*
 
 # local env files
 .env.local
-boby/.env.local
+
 # vercel
 .vercel
 
@@ -42,6 +42,6 @@ next-env.d.ts
 # prisma
 /prisma/migrations
 
-feedback-system/node_modules
+# claude code
 .claude
 
