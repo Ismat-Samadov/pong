@@ -32,19 +32,21 @@ export default async function AnalyticsPage() {
     .map(([category, count]) => ({ category, count }))
     .sort((a, b) => b.count - a.count)
 
-  // Feedback by branch
-  const branchMap = feedbacks.reduce((acc, f) => {
-    if (!acc[f.branchId]) {
-      acc[f.branchId] = {
-        branchName: f.branch.name,
-        count: 0,
-        totalRating: 0,
+  // Feedback by branch (only feedbacks with branches)
+  const branchMap = feedbacks
+    .filter(f => f.branchId && f.branch) // Filter out feedbacks without branches
+    .reduce((acc, f) => {
+      if (!acc[f.branchId!]) {
+        acc[f.branchId!] = {
+          branchName: f.branch!.name,
+          count: 0,
+          totalRating: 0,
+        }
       }
-    }
-    acc[f.branchId].count++
-    acc[f.branchId].totalRating += f.rating
-    return acc
-  }, {} as Record<string, { branchName: string; count: number; totalRating: number }>)
+      acc[f.branchId!].count++
+      acc[f.branchId!].totalRating += f.rating
+      return acc
+    }, {} as Record<string, { branchName: string; count: number; totalRating: number }>)
 
   const feedbackByBranch = Object.values(branchMap)
     .map((b) => ({
