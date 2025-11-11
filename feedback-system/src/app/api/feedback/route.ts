@@ -81,6 +81,7 @@ export async function GET() {
     const feedback = await db.feedback.findMany({
       include: {
         branch: true,
+        files: true,
       },
       orderBy: { createdAt: 'desc' },
     })
