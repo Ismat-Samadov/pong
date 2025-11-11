@@ -41,6 +41,8 @@ export default function BranchSelector({ branches, onBranchSelect, selectedBranc
   const [nearestBranch, setNearestBranch] = useState<Branch | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedView, setSelectedView] = useState<'map' | 'list'>('map')
+  const [locationRequested, setLocationRequested] = useState(false)
+  const [locationLoading, setLocationLoading] = useState(false)
 
   // Filter to show ONLY "Branches" type (not ATMs or Payment terminals)
   const branchesOnly = branches.filter(b => b.type === 'Branches')
@@ -48,8 +50,10 @@ export default function BranchSelector({ branches, onBranchSelect, selectedBranc
   // Default center (Baku, Azerbaijan)
   const defaultCenter = { lat: 40.4093, lng: 49.8671 }
 
-  useEffect(() => {
-    // Get user's location
+  const requestLocation = () => {
+    setLocationLoading(true)
+    setLocationRequested(true)
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -58,6 +62,7 @@ export default function BranchSelector({ branches, onBranchSelect, selectedBranc
             lng: position.coords.longitude,
           }
           setUserLocation(userLoc)
+          setLocationLoading(false)
 
           // Find nearest branch (only from actual branches, not ATMs)
           if (branchesOnly.length > 0) {
@@ -71,10 +76,15 @@ export default function BranchSelector({ branches, onBranchSelect, selectedBranc
         },
         (error) => {
           console.log('Location access denied:', error)
+          setLocationLoading(false)
+          alert('Unable to access your location. Please enable location permissions or select a branch manually.')
         }
       )
+    } else {
+      setLocationLoading(false)
+      alert('Geolocation is not supported by your browser.')
     }
-  }, [branchesOnly])
+  }
 
   const getDistance = (loc1: { lat: number; lng: number }, loc2: { lat: number; lng: number }) => {
     const R = 6371 // Earth's radius in km
@@ -100,6 +110,30 @@ export default function BranchSelector({ branches, onBranchSelect, selectedBranc
 
   return (
     <div className="space-y-4">
+      {/* Find Nearest Branch Button */}
+      {!locationRequested && (
+        <button
+          onClick={requestLocation}
+          disabled={locationLoading}
+          className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all font-semibold shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          {locationLoading ? (
+            <>
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+              </svg>
+              Finding your location...
+            </>
+          ) : (
+            <>
+              <span className="text-xl">📍</span>
+              Find Nearest Branch
+            </>
+          )}
+        </button>
+      )}
+
       {/* View Toggle */}
       <div className="flex gap-3 bg-gray-100 p-1 rounded-xl">
         <button
