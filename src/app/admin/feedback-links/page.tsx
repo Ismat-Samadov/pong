@@ -94,27 +94,34 @@ export default function FeedbackLinksPage() {
     }
 
     try {
+      let response
       if (editingLink) {
-        await fetch(`/api/feedback-links/${editingLink.id}`, {
+        response = await fetch(`/api/feedback-links/${editingLink.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...payload, active: editingLink.active }),
         })
       } else {
-        await fetch('/api/feedback-links', {
+        response = await fetch('/api/feedback-links', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         })
       }
 
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to save link')
+      }
+
       setFormData({ name: '', branchId: '', description: '', expiresAt: '', maxUsage: '' })
       setShowForm(false)
       setEditingLink(null)
       fetchLinks()
+      alert(editingLink ? 'Link updated successfully!' : 'Link created successfully!')
     } catch (error) {
       console.error('Error saving link:', error)
-      alert('Failed to save link')
+      alert(error instanceof Error ? error.message : 'Failed to save link. Please try again.')
     }
   }
 
@@ -134,24 +141,38 @@ export default function FeedbackLinksPage() {
     if (!confirm('Are you sure you want to delete this link?')) return
 
     try {
-      await fetch(`/api/feedback-links/${id}`, { method: 'DELETE' })
+      const response = await fetch(`/api/feedback-links/${id}`, { method: 'DELETE' })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to delete link')
+      }
+
+      alert('Link deleted successfully!')
       fetchLinks()
     } catch (error) {
       console.error('Error deleting link:', error)
-      alert('Failed to delete link')
+      alert(error instanceof Error ? error.message : 'Failed to delete link. Please try again.')
     }
   }
 
   const toggleActive = async (link: FeedbackLink) => {
     try {
-      await fetch(`/api/feedback-links/${link.id}`, {
+      const response = await fetch(`/api/feedback-links/${link.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...link, active: !link.active }),
       })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to toggle link status')
+      }
+
       fetchLinks()
     } catch (error) {
       console.error('Error toggling link:', error)
+      alert(error instanceof Error ? error.message : 'Failed to toggle link status. Please try again.')
     }
   }
 
