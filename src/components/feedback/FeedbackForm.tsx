@@ -70,6 +70,7 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
   }, [errors])
 
   const selectedRating = watch('rating')
+  const selectedRatingNum = selectedRating ? parseInt(selectedRating, 10) : 0
 
   const onSubmit = async (data: FeedbackFormData) => {
     setSubmitting(true)
@@ -179,14 +180,14 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
               <div className="flex flex-col items-center gap-2">
                 <span
                   className={`text-5xl sm:text-6xl transition-all ${
-                    selectedRating >= rating
+                    selectedRatingNum >= rating
                       ? 'text-yellow-400 drop-shadow-lg scale-110'
                       : 'text-gray-300 hover:text-gray-400'
                   }`}
                 >
                   ★
                 </span>
-                {selectedRating === rating && (
+                {selectedRatingNum === rating && (
                   <span className="text-xs font-medium text-blue-600">
                     {rating === 1 ? 'Poor' : rating === 2 ? 'Fair' : rating === 3 ? 'Good' : rating === 4 ? 'Very Good' : 'Excellent'}
                   </span>
