@@ -25,6 +25,7 @@ const categories = [
 ]
 
 export default function FeedbackForm({ branches, initialBranchId }: FeedbackFormProps) {
+  const [files, setFiles] = useState<File[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
 
@@ -47,17 +48,26 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
   const onSubmit = async (data: FeedbackFormData) => {
     setSubmitting(true)
     try {
+      const formData = new FormData()
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, value.toString())
+        }
+      })
+
+      files.forEach((file) => {
+        formData.append('files', file)
+      })
+
       const response = await fetch('/api/feedback', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+        body: formData,
       })
 
       if (response.ok) {
         setSuccess(true)
         reset()
+        setFiles([])
         setTimeout(() => setSuccess(false), 5000)
       } else {
         alert('Failed to submit feedback. Please try again.')
@@ -68,6 +78,17 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files)
+      setFiles((prev) => [...prev, ...newFiles].slice(0, 5)) // Max 5 files
+    }
+  }
+
+  const removeFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
   return (
@@ -188,6 +209,39 @@ export default function FeedbackForm({ branches, initialBranchId }: FeedbackForm
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
+      </div>
+
+      {/* File Upload */}
+      <div>
+        <label className="block text-sm font-medium mb-2">
+          Attachments (Optional, max 5 files)
+        </label>
+        <input
+          type="file"
+          multiple
+          accept="image/*,.pdf"
+          onChange={handleFileChange}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+        />
+        {files.length > 0 && (
+          <div className="mt-2 space-y-2">
+            {files.map((file, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between bg-gray-50 p-2 rounded"
+              >
+                <span className="text-sm truncate">{file.name}</span>
+                <button
+                  type="button"
+                  onClick={() => removeFile(index)}
+                  className="text-red-500 hover:text-red-700 ml-2"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Submit Button */}
